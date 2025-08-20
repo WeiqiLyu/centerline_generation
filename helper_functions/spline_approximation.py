@@ -11,7 +11,10 @@ def spline_approximation(track: np.ndarray,
                          s_reg: int = 10,
                          stepsize_prep: float = 1.0,
                          stepsize_reg: float = 3.0,
-                         debug: bool = False) -> np.ndarray:
+                         debug: bool = False,
+                         original_figname = None,
+                         linear_interpolated_figname = None,
+                         cubic_spline_figname = None) -> np.ndarray:
     """
     author:
     Fabian Christ
@@ -50,7 +53,9 @@ def spline_approximation(track: np.ndarray,
     # ------------------------------------------------------------------------------------------------------------------
 
     track_interp = interp_track.interp_track(track=track,
-                                                 stepsize=stepsize_prep)
+                                            stepsize=stepsize_prep,
+                                            original_figname = original_figname,
+                                            linear_interpolated_figname = linear_interpolated_figname)
     track_interp_cl = np.vstack((track_interp, track_interp[0]))
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -87,6 +92,7 @@ def spline_approximation(track: np.ndarray,
     plt.ylabel("y")
     plt.title("cubic spline track")
     plt.show()
+    plt.savefig(cubic_spline_figname, dpi=300)
 
     # ------------------------------------------------------------------------------------------------------------------
     # PROCESS TRACK WIDTHS (AND BANKING ANGLE IF GIVEN) ----------------------------------------------------------------

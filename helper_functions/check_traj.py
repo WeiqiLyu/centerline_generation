@@ -43,8 +43,17 @@ def check_traj(reftrack: np.ndarray,
     bound_r_tmp = np.column_stack((bound_r, np.zeros((bound_r.shape[0], 2))))
     bound_l_tmp = np.column_stack((bound_l, np.zeros((bound_l.shape[0], 2))))
 
-    bound_r_interp = interp_track.interp_track(track=bound_r_tmp, stepsize=1.0)[0]
-    bound_l_interp = interp_track.interp_track(track=bound_l_tmp, stepsize=1.0)[0]
+    bound_r_interp = interp_track.interp_track(
+        track=bound_r_tmp, 
+        stepsize=1.0, 
+        original_figname = "original_right_boundary.png", 
+        linear_interpolated_figname = "linear_interpolated_right_boundary.png")[0]
+    
+    bound_l_interp = interp_track.interp_track(
+        track=bound_l_tmp, 
+        stepsize=1.0,
+        original_figname = "original_left_boundary.png", 
+        linear_interpolated_figname = "linear_interpolated_left_boundary.png")[0]
 
     # calculate minimum distances of every trajectory point to the boundaries
     min_dists = calc_min_bound_dists.calc_min_bound_dists(trajectory=trajectory,

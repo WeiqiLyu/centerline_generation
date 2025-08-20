@@ -5,7 +5,7 @@ import configparser
 import argparse
 import os
 from helper_functions import import_track, prep_track, calc_spline_lengths, interp_splines, calc_head_curv_an
-from helper_functions import check_traj, export_traj_splines, calc_splines
+from helper_functions import check_traj, export_traj_splines, calc_splines, result_plots
 
 """
 This script has to be executed for smmothing the centerline and get the cubic spline interpretation.
@@ -14,7 +14,7 @@ This script has to be executed for smmothing the centerline and get the cubic sp
 
 # Create the parser and add arguments with defaults and explicit names
 parser = argparse.ArgumentParser(description='Generate interpolated and smoothed track centerlines.')
-parser.add_argument('--map_name', type=str, default='big_track_new', help='Name of the map (default: Hockenheim_map)')
+parser.add_argument('--map_name', type=str, default='CIIT_klein_gmapping_clean', help='Name of the map (default: Hockenheim_map)')
 parser.add_argument('--map_path', type=str, default='', help='Path to the map centerline (should be a .csv), defaults to tracks/<map_name>.csv')
 parser.add_argument('--export_path', type=str, default='', help='Path to copy from the filepath in the /outputs')
 
@@ -32,7 +32,7 @@ EXPORT_PATH = args.export_path
 # choose vehicle parameter file 
 # "f110.ini" for F1TENTH
 # "rosbot.ini" for Rosbot
-file_paths = {"veh_params_file": "f110.ini"}                    
+file_paths = {"veh_params_file": "rosbot.ini"}                    
 
 # select track file (including centerline coordinates + track widths) 
 file_paths["track_name"] = MAP_NAME
@@ -57,7 +57,7 @@ file_paths["spline_export"] = os.path.join(file_paths["module"], f"outputs", f"{
 parser = configparser.ConfigParser()
 pars = {}
 
-if not parser.read(os.path.join(file_paths["module"], file_paths["veh_params_file"])):
+if not parser.read(os.path.join(file_paths["module"], f"params", file_paths["veh_params_file"])):
     raise ValueError('Specified config file does not exist or is empty!')
 
 pars["stepsize_opts"] = json.loads(parser.get('GENERAL_OPTIONS', 'stepsize_opts'))
@@ -73,18 +73,12 @@ imp_opts = {"flip_imp_track": False,                # flip imported track to rev
                                                     # only relevant in mintime-optimization
 # debug and plot options 
 debug = True                                    # print console messages
-plot_opts = {"mincurv_curv_lin": False,         # plot curv. linearization (original and solution based) (mincurv only)
-             "raceline": True,                  # plot optimized path
+plot_opts = {"centerline": True,                # plot interpolated and smoothed centerline
              "imported_bounds": True,           # plot imported bounds (analyze difference to interpolated bounds)
-             "raceline_curv": False,            # plot curvature profile of optimized path
-             "racetraj_vel": True,              # plot velocity profile
-             "racetraj_vel_3d": True,           # plot 3D velocity profile above raceline
-             "racetraj_vel_3d_stepsize": 0.5,   # [m] vertical lines stepsize in 3D velocity profile plot
-             "spline_normals": False,           # plot spline normals to check for crossings
-             "mintime_plots": False}            # plot states, controls, friction coeffs etc. (mintime only)
+             "spline_normals": True}           # plot spline normals to check for crossings
 
 # ----------------------------------------------------------------------------------------------------------------------
-# IMPORT TRACK AND VEHICLE DYNAMICS INFORMATION ------------------------------------------------------------------------
+# IMPORT TRACK ---------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
 # save start time
@@ -104,7 +98,10 @@ reftrack_interp, normvec_normalized_interp, a_interp, coeffs_x_interp, coeffs_y_
                           reg_smooth_opts=pars["reg_smooth_opts"],
                           stepsize_opts=pars["stepsize_opts"],
                           debug=debug,
-                          min_width=imp_opts["min_track_width"])
+                          min_width=imp_opts["min_track_width"],
+                          original_figname = "original_centerline.png",
+                          linear_interpolated_figname = "linear_interpolated_centerline.png",
+                          cubic_spline_figname = "cubic_spline_smoothed_centerline.png")
 
 # ----------------------------------------------------------------------------------------------------------------------
 # INTERPOLATE SPLINES TO SMALL DISTANCES BETWEEN CENTERLINE POINTS -------------------------------------------------------
@@ -193,3 +190,11 @@ if plot_opts["imported_bounds"]:
 
     bound1_imp = reftrack_imp[::n_skip, :2] + normvec_imp * np.expand_dims(reftrack_imp[::n_skip, 2], 1)
     bound2_imp = reftrack_imp[::n_skip, :2] - normvec_imp * np.expand_dims(reftrack_imp[::n_skip, 3], 1)
+
+# plot results
+result_plots.result_plots(plot_opts=plot_opts,
+                          refline=reftrack_interp[:, :2],
+                          bound1_imp=bound1_imp,
+                          bound2_imp=bound2_imp,
+                          bound1_interp=bound1,
+                          bound2_interp=bound2)

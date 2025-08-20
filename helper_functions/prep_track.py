@@ -8,7 +8,10 @@ def prep_track(reftrack_imp: np.ndarray,
                reg_smooth_opts: dict,
                stepsize_opts: dict,
                debug: bool = True,
-               min_width: float = None) -> tuple:
+               min_width: float = None,
+               original_figname = None,
+               linear_interpolated_figname = None,
+               cubic_spline_figname = None) -> tuple:
     """
     Created by:
     Alexander Heilmeier
@@ -41,7 +44,11 @@ def prep_track(reftrack_imp: np.ndarray,
                                                                 s_reg=reg_smooth_opts["s_reg"],
                                                                 stepsize_prep=stepsize_opts["stepsize_prep"],
                                                                 stepsize_reg=stepsize_opts["stepsize_reg"],
-                                                                debug=debug)
+                                                                debug=debug,
+                                                                original_figname = original_figname,
+                                                                linear_interpolated_figname = linear_interpolated_figname,
+                                                                cubic_spline_figname = cubic_spline_figname
+                                                                )
 
     # calculate splines
     refpath_interp_cl = np.vstack((reftrack_interp[:, :2], reftrack_interp[0, :2]))
@@ -75,6 +82,7 @@ def prep_track(reftrack_imp: np.ndarray,
         plt.title("Error: at least one pair of normals is crossed!")
 
         plt.show()
+        plt.savefig("cross_error.png", dpi=300)
 
         raise IOError("At least two spline normals are crossed, check input or increase smoothing factor!")
 

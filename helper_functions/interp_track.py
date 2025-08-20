@@ -3,7 +3,9 @@ import math
 import matplotlib.pyplot as plt
 
 def interp_track(track: np.ndarray,
-                 stepsize: float) -> np.ndarray:
+                 stepsize: float,
+                 original_figname,
+                 linear_interpolated_figname) -> np.ndarray:
     """
     author:
     Alexander Heilmeier
@@ -39,6 +41,7 @@ def interp_track(track: np.ndarray,
     plt.ylabel("y")
     plt.title("original reference track")
     plt.show()
+    plt.savefig(original_figname, dpi=300)
 
     # calculate element lengths (euclidian distance)
     el_lengths_cl = np.sqrt(np.sum(np.power(np.diff(track_cl[:, :2], axis=0), 2), axis=1))
@@ -70,6 +73,7 @@ def interp_track(track: np.ndarray,
     plt.ylabel("y")
     plt.title("linear interpolation of track")
     plt.show()
+    plt.savefig(linear_interpolated_figname, dpi=300)
 
     return track_interp_cl[:-1]
 
