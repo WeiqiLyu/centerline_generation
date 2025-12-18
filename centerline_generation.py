@@ -14,7 +14,7 @@ This script has to be executed for smmothing the centerline and get the cubic sp
 
 # Create the parser and add arguments with defaults and explicit names
 parser = argparse.ArgumentParser(description='Generate interpolated and smoothed track centerlines.')
-parser.add_argument('--map_name', type=str, default='CIIT_klein_gmapping_clean', help='Name of the map (default: Hockenheim_map)')
+parser.add_argument('--map_name', type=str, default='e7_floor5_square', help='Name of the map (default: Hockenheim_map)')
 parser.add_argument('--map_path', type=str, default='', help='Path to the map centerline (should be a .csv), defaults to tracks/<map_name>.csv')
 parser.add_argument('--export_path', type=str, default='', help='Path to copy from the filepath in the /outputs')
 
@@ -32,7 +32,7 @@ EXPORT_PATH = args.export_path
 # choose vehicle parameter file 
 # "f110.ini" for F1TENTH
 # "rosbot.ini" for Rosbot
-file_paths = {"veh_params_file": "rosbot.ini"}                    
+file_paths = {"veh_params_file": "f110.ini"}                    
 
 # select track file (including centerline coordinates + track widths) 
 file_paths["track_name"] = MAP_NAME
@@ -65,7 +65,7 @@ pars["reg_smooth_opts"] = json.loads(parser.get('GENERAL_OPTIONS', 'reg_smooth_o
 pars["veh_params"] = json.loads(parser.get('GENERAL_OPTIONS', 'veh_params'))
 
 # set import options 
-imp_opts = {"flip_imp_track": False,                # flip imported track to reverse direction
+imp_opts = {"flip_imp_track": True,                # flip imported track to reverse direction
             "set_new_start": True,                  # set new starting point (changes order, not coordinates)
             "new_start": np.array([0.0, 0.0]),      # [x_m, y_m]
             "min_track_width": None,                # [m] minimum enforced track width (set None to deactivate)
